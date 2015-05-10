@@ -1,8 +1,12 @@
 # paekdusan
-paekdusan是一个跨平台的C++简易CGI服务器/C++服务框架，比较依照[吴导](https://github.com/yanyiwu)的hpp风格写的。
+paekdusan是一个跨平台的C++简易CGI服务器/C++服务框架，比较依照[吴导](https://github.com/yanyiwu)的hpp风格写的
+
 其中socket部分使用了预编译宏的方式来实现了windows和linux的跨平台
+
 其中用到的Log函数来源于[Limonp](https://github.com/yanyiwu/limonp)
+
 其中用到的BlockingBoundedQueue来源于[muduo](https://github.com/chenshuo/muduo/)，但是我改用了C++11的mutex和condition
+
 其中用到的ThreadPool来源于[Limonp](https://github.com/yanyiwu/limonp)，但是我改用了C++11的thread
 
 ## 依赖
