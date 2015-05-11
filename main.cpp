@@ -6,17 +6,15 @@
 #include <vector>
 #include <thread>
 
-#include "HttpRequest.hpp"
-#include "StrTools.hpp"
-#include "Queue.hpp"
-#include "ThreadPool.hpp"
 #include "ThreadPoolServer.hpp"
+#include "CGIRequestHandler.hpp"
 
 using namespace std;
 using namespace Paekdusan;
 
 int main() {
-    ThreadPoolServer threadPoolServer(4, 128, 128, 12306);
+    CGIRequestHandler requestHandler;
+    ThreadPoolServer threadPoolServer(4, 128, 128, 12306, requestHandler);
     threadPoolServer.start();
     return 0;
 }

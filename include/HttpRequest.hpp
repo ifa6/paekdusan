@@ -68,7 +68,7 @@ namespace Paekdusan {
             }
 
             if (!_readBodyFinished) {
-                if (isGET() || _contentLength == 0 && existKeyInHeader("CONTENT-LENGTH")) {
+                if (isGET() || (_contentLength == 0 && existKeyInHeader("CONTENT-LENGTH"))) {
                     _readBodyFinished = true;
                     return parsedLength;
                 }
@@ -112,6 +112,14 @@ namespace Paekdusan {
 
             val = itr->second;
             return true;
+        }
+
+        const string& getURI() const {
+            return _URI;
+        }
+
+        const string& getBody() const {
+            return _body;
         }
 
     private:

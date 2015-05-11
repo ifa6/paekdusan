@@ -17,7 +17,20 @@ namespace Paekdusan {
         return isupper(x) ? x - 'A' + 10 : x - 'a' + 10;
     }
 
-    string upper(const string& src) {
+    inline string getFileSuffix(const string& filename) {
+        size_t pos = filename.rfind('.');
+        string suffix;
+
+        if (pos == string::npos) {
+            suffix = "";
+        } else {
+            suffix = filename.substr(pos+1);
+        }
+
+        return suffix;
+    }
+
+    inline string upper(const string& src) {
         string ret = src;
         for_each(ret.begin(), ret.end(), [](char c) { return toupper(c); });
         return ret;

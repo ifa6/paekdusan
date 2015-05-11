@@ -5,17 +5,20 @@
 #include "NetTools.hpp"
 #include "HttpRequest.hpp"
 #include "ThreadPool.hpp"
+#include "IHttpRequestHandler.hpp"
 
 namespace Paekdusan {
     const size_t RECV_BUFFER_SIZE = (2 << 14);
 
-    const char* const HTTP_RESPONSE = "HTTP/1.1 %d OK\r\nConnection: close\r\nServer: Paekdusan/1.0.0\r\nContent-Type: text/json; charset=UTF-8\r\nContent-Length: %d\r\n\r\n%s";
-
     class HttpProcessTask : public ITask {
     public:
-        HttpProcessTask(int sockfd) : _sockfd(sockfd) {}
+        HttpProcessTask(int sockfd, const IHttpRequestHandler& httpRequestHandler) 
+            : _sockfd(sockfd), _httpRequestHandler(httpRequestHandler) {}
+
     private:
         int _sockfd;
+        const IHttpRequestHandler& _httpRequestHandler;
+
         bool _receive(HttpRequest& httpRequest) {
             char recvBuff[RECV_BUFFER_SIZE];
             int recvLen = 0, parsedLength = 0, unparsed = 0;
@@ -26,6 +29,7 @@ namespace Paekdusan {
                     LogError("recv failed: %d", getLastErrorNo());
                     return false;
                 }
+                if (recvLen == 0) LogInfo("recv returns 0");
 
                 unparsed += recvLen;
                 parsedLength = httpRequest.parse(recvBuff);
@@ -57,6 +61,8 @@ namespace Paekdusan {
                     LogError("send failed: %d", getLastErrorNo());
                     return false;
                 }
+                if (sentLen == 0) LogInfo("send returns 0");
+
                 alreadySent += sentLen;
             }
             return true;
@@ -65,15 +71,20 @@ namespace Paekdusan {
         bool _setsockopt() {
             struct linger LNG = {1, 1};
             struct timeval SOCKET_TIMEOUT = {16, 0};
-
+            
+            //time_wait for 1 second
             if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_LINGER, (const char*) &LNG, sizeof(LNG))) {
                 LogError("setsockopt failed: %d", getLastErrorNo());
                 return false;
             }
+
+            //16 second for recv timeout
             if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT))) {
                 LogError("setsockopt failed: %d", getLastErrorNo());
                 return false;
             }
+
+            //16 second for send timeout
             if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_SNDTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT))) {
                 LogError("setsockopt failed: %d", getLastErrorNo());
                 return false;
@@ -81,7 +92,7 @@ namespace Paekdusan {
             return true;
         }
     public:
-        void run() {
+        virtual void run() {
             do {
                 if (!_setsockopt()) {
                     LogError("set socket property failed");
@@ -94,13 +105,13 @@ namespace Paekdusan {
                     break;
                 }
 
-                string response = "{'hello': 'world'}";
-                if (!_send(stringFormat(HTTP_RESPONSE, 200, response.length(), response.c_str()))) {
+                string response = _httpRequestHandler.handle(httpRequest);
+
+                if (!_send(response)) {
                     LogError("send http response failed");
                     break;
                 }
             } while (false);
-
 
             if (closeSocket(_sockfd) < 0) {
                 LogError("close socket failed: %d", getLastErrorNo());
