@@ -2,17 +2,17 @@
 #define PAEKDUSAN_HTTP_PROCESS_TASK_H
 
 #include <cstring>
-#include "NetTools.hpp"
+#include "Utils/NetUtils.hpp"
+#include "Utils/ThreadPool.hpp"
 #include "HttpRequest.hpp"
-#include "ThreadPool.hpp"
 #include "IHttpRequestHandler.hpp"
 
 namespace Paekdusan {
     const size_t RECV_BUFFER_SIZE = (2 << 14);
 
-    class HttpProcessTask : public ITask {
+    class Worker : public ITask {
     public:
-        HttpProcessTask(int sockfd, const IHttpRequestHandler& httpRequestHandler) 
+        Worker(int sockfd, const IHttpRequestHandler& httpRequestHandler) 
             : _sockfd(sockfd), _httpRequestHandler(httpRequestHandler) {}
 
     private:
@@ -29,7 +29,7 @@ namespace Paekdusan {
                     LogError("recv failed: %d", getLastErrorNo());
                     return false;
                 }
-                if (recvLen == 0) LogInfo("recv returns 0");
+                if (recvLen == 0) LogInfo("recv returns 0: %d", getLastErrorNo());
 
                 unparsed += recvLen;
                 parsedLength = httpRequest.parse(recvBuff);

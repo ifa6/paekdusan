@@ -1,5 +1,5 @@
-#ifndef PAEKDUSAN_STR_TOOLS_H
-#define PAEKDUSAN_STR_TOOLS_H
+#ifndef PAEKDUSAN_STR_UTILS_H
+#define PAEKDUSAN_STR_UTILS_H
 
 #include <string>
 #include <vector>

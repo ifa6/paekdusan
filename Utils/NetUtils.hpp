@@ -1,5 +1,5 @@
-#ifndef PAEKDUSAN_NET_TOOLS_H
-#define PAEKDUSAN_NET_TOOLS_H
+#ifndef PAEKDUSAN_NET_UTILS_H
+#define PAEKDUSAN_NET_UTILS_H
 
 //headers in windows 
 #if defined(_WIN32)
@@ -55,13 +55,13 @@ namespace Paekdusan {
 
         int sock = socket(AF_INET, SOCK_STREAM, 0);
         if (sock < 0) {
-            LogError("create socket failed: %d, %s", getLastErrorNo(), strerror(getLastErrorNo()));
+            LogError("create socket failed: %d", getLastErrorNo());
             return -1;
         }
 
         int optval = 1; // nozero
         if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*) (&optval), sizeof(optval)) < 0) {
-            LogError("setsockopt failed: %d, %s", getLastErrorNo(), strerror(getLastErrorNo()));
+            LogError("setsockopt failed: %d", getLastErrorNo());
             return -1;
         }
 
@@ -70,12 +70,12 @@ namespace Paekdusan {
         addr.sin_port = htons(port);
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
         if (::bind(sock, (sockaddr*) &addr, sizeof(addr)) < 0) {
-            LogError("::bind failed: %d, %s", getLastErrorNo(), strerror(getLastErrorNo()));
+            LogError("::bind failed: %d", getLastErrorNo());
             return -1;
         }
 
         if (listen(sock, listenQueueLength) < 0) {
-            LogError("listen failed: %d, %s", getLastErrorNo(), strerror(getLastErrorNo()));
+            LogError("listen failed: %d", getLastErrorNo());
             return -1;
         }
 

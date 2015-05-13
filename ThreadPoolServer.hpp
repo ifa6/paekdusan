@@ -1,8 +1,8 @@
 #ifndef PAEKDUSAN_THREAD_POOL_SERVER_H
 #define PAEKDUSAN_THREAD_POOL_SERVER_H
 
-#include "ThreadPool.hpp"
-#include "HttpProcessTask.hpp"
+#include "Utils/ThreadPool.hpp"
+#include "Worker.hpp"
 #include "IHttpRequestHandler.hpp"
 
 namespace Paekdusan {
@@ -21,11 +21,11 @@ namespace Paekdusan {
 
             while (true) {
                 if (-1 == (clientSock = acceptClient(_hostSocket, (struct sockaddr*) &clientAddr, &nSize))) {
-                    LogError("accept failed: %d, %s", getLastErrorNo(), strerror(getLastErrorNo()));
+                    LogError("accept failed: %d", getLastErrorNo());
                     break;
                 }
                 LogInfo("accept client: %s", inet_ntoa(clientAddr.sin_addr));
-                _threadPool.add(new HttpProcessTask(clientSock, _httpRequestHandler));
+                _threadPool.add(new Worker(clientSock, _httpRequestHandler));
             }
             return true;
         }

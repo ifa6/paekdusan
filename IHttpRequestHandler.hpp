@@ -2,7 +2,7 @@
 #define PAEKDUSAN_I_HTTP_REQUEST_HANDLER_H
 
 #include "HttpRequest.hpp"
-#include "StrTools.hpp"
+#include "Utils/StrUtils.hpp"
 
 namespace Paekdusan {
     class IHttpRequestHandler {

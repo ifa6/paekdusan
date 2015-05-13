@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "Logger.hpp"
-#include "StrTools.hpp"
+#include "Utils/Logger.hpp"
+#include "Utils/StrUtils.hpp"
 
 namespace Paekdusan {
     using namespace std;

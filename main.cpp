@@ -7,13 +7,13 @@
 #include <thread>
 
 #include "ThreadPoolServer.hpp"
-#include "CGIRequestHandler.hpp"
+#include "StaticPageHandler.hpp"
 
 using namespace std;
 using namespace Paekdusan;
 
 int main() {
-    CGIRequestHandler requestHandler;
+    StaticPageHandler requestHandler;
     ThreadPoolServer threadPoolServer(4, 128, 128, 12306, requestHandler);
     threadPoolServer.start();
     return 0;
