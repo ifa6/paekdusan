@@ -23,7 +23,9 @@ namespace Paekdusan {
             if (pos != string::npos) return ResponseFactory::makeResponse(METHOD_NOT_IMPLEMENTED);
 
             if (serveFile(URI, contentType, content)) {
-                return ResponseFactory::makeResponse(OK, contentType, content);
+                string connection;
+                if (httpRequest.getHeaderByKey("CONNECTION", connection)) connection = "keep-alive";
+                return ResponseFactory::makeResponse(OK, connection.c_str(), contentType, content);
             } else {
                 return ResponseFactory::makeResponse(NOT_FOUND);
             }

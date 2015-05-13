@@ -44,6 +44,32 @@ namespace Paekdusan {
 #endif
     }
 
+    bool setRecvTimeout(int sock, int sec) {
+#if defined(_WIN32)
+        struct timeval SOCKET_TIMEOUT = {sec * 1000, 0};
+#elif defined(__linux__)
+        struct timeval SOCKET_TIMEOUT = {sec, 0};
+#endif
+        return -1 != setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT));
+    }
+
+    bool setSendTimeout(int sock, int sec) {
+#if defined(_WIN32)
+        struct timeval SOCKET_TIMEOUT = {sec * 1000, 0};
+#elif defined(__linux__)
+        struct timeval SOCKET_TIMEOUT = {sec, 0};
+#endif
+        return -1 != setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT));
+    }
+
+    bool isTimeout() {
+#if defined(_WIN32)
+        return getLastErrorNo() == 10060;
+#elif defined(__linux__)
+        return errno == 110;
+#endif
+    }
+
     int createAndListenSocket(int port, int listenQueueLength) {
 #if defined(_WIN32)
         WSADATA wsaData;

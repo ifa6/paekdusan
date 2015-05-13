@@ -32,7 +32,7 @@ namespace Paekdusan {
 
     inline string upper(const string& src) {
         string ret = src;
-        for_each(ret.begin(), ret.end(), [](char c) { return toupper(c); });
+        for_each(ret.begin(), ret.end(), [](char& c) { c = toupper(c); });
         return ret;
     }
 

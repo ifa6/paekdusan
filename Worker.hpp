@@ -1,5 +1,5 @@
-#ifndef PAEKDUSAN_HTTP_PROCESS_TASK_H
-#define PAEKDUSAN_HTTP_PROCESS_TASK_H
+#ifndef PAEKDUSAN_WORKER_H
+#define PAEKDUSAN_WORKER_H
 
 #include <cstring>
 #include "Utils/NetUtils.hpp"
@@ -8,8 +8,6 @@
 #include "IHttpRequestHandler.hpp"
 
 namespace Paekdusan {
-    const size_t RECV_BUFFER_SIZE = (2 << 14);
-
     class Worker : public ITask {
     public:
         Worker(int sockfd, const IHttpRequestHandler& httpRequestHandler) 
@@ -17,6 +15,7 @@ namespace Paekdusan {
 
     private:
         int _sockfd;
+        static const size_t RECV_BUFFER_SIZE = (1 << 14);
         const IHttpRequestHandler& _httpRequestHandler;
 
         bool _receive(HttpRequest& httpRequest) {
@@ -25,7 +24,7 @@ namespace Paekdusan {
             
             while (!httpRequest.readBodyFinished()) {
                 recvLen = recv(_sockfd, recvBuff + unparsed, RECV_BUFFER_SIZE - unparsed, 0);
-                if (recvLen < 0) {
+                if (recvLen < 0 && !isTimeout()) {
                     LogError("recv failed: %d", getLastErrorNo());
                     return false;
                 }
@@ -43,8 +42,8 @@ namespace Paekdusan {
                 /*more data need to be read before being parsed*/
                 if (parsedLength == 0) continue;
                 
-                /*parsed part*/
-                if (parsedLength < unparsed) {
+                /*parsed part or all*/
+                if (parsedLength <= unparsed) {
                     unparsed -= parsedLength;
                     memmove(recvBuff, recvBuff + parsedLength, unparsed);
                 }
@@ -68,34 +67,16 @@ namespace Paekdusan {
             return true;
         }
 
-        bool _setsockopt() {
-            struct linger LNG = {1, 1};
-            struct timeval SOCKET_TIMEOUT = {16, 0};
-            
-            //time_wait for 1 second
-            if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_LINGER, (const char*) &LNG, sizeof(LNG))) {
-                LogError("setsockopt failed: %d", getLastErrorNo());
-                return false;
-            }
-
-            //16 second for recv timeout
-            if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT))) {
-                LogError("setsockopt failed: %d", getLastErrorNo());
-                return false;
-            }
-
-            //16 second for send timeout
-            if (-1 == setsockopt(_sockfd, SOL_SOCKET, SO_SNDTIMEO, (const char*) &SOCKET_TIMEOUT, sizeof(SOCKET_TIMEOUT))) {
-                LogError("setsockopt failed: %d", getLastErrorNo());
-                return false;
-            }
-            return true;
-        }
     public:
         virtual void run() {
             do {
-                if (!_setsockopt()) {
-                    LogError("set socket property failed");
+                if (!setSendTimeout(_sockfd, 5)) {
+                    LogError("setSendTimeout failed: %d", getLastErrorNo());
+                    break;
+                }
+
+                if (!setRecvTimeout(_sockfd, 5)) {
+                    LogError("setRecvTimeout failed: %d", getLastErrorNo());
                     break;
                 }
 
@@ -112,7 +93,7 @@ namespace Paekdusan {
                     break;
                 }
             } while (false);
-
+            
             if (closeSocket(_sockfd) < 0) {
                 LogError("close socket failed: %d", getLastErrorNo());
             }

@@ -19,6 +19,20 @@ namespace Paekdusan {
     public:
         HttpRequest() : _readRequestLineFinished(false), _readHeaderFinished(false), _readBodyFinished(false), _contentLength(0) {}
         
+        void reset() {
+            _readBodyFinished = false;
+            _readHeaderFinished = false;
+            _readRequestLineFinished = false;
+            _contentLength = 0;
+
+            _method.clear();
+            _URI.clear();
+            _version.clear();
+
+            _header.clear();
+            _body.clear();
+        }
+
         int parse(const string& rawData) {
             size_t parsedLength = 0;
             size_t start = 0, pos = 0;
@@ -47,7 +61,7 @@ namespace Paekdusan {
                         return -1;
                     }
 
-                    _header[upper(headerLine.substr(0, colonPos))] = headerLine.substr(colonPos);
+                    _header[upper(headerLine.substr(0, colonPos))] = headerLine.substr(colonPos+1);
                     start = pos + 2;
                     pos = rawData.find("\r\n", start);
                     headerLine = rawData.substr(start, pos - start);
