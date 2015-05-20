@@ -30,4 +30,8 @@ paekdusan是一个跨平台的简易C++服务框架，并且附带了实现了�
 - [http协议中content-length 以及chunked编码分析](http://blog.csdn.net/yankai0219/article/details/8269922)
 - [HTTP协议头部与Keep-Alive模式详解](https://www.byvoid.com/blog/http-keep-alive-header/)
 - [C++11中多线程并发的实践](http://www.cnblogs.com/haippy/)
+- [Threads and fork(): think twice before mixing them](http://www.linuxprogrammingblog.com/threads-and-fork-think-twice-before-using-them)    
 
+更多信息
+
+[paekdusan](http://cstdlib.com/jekyll/update/2015/05/17/http-and-web-server/)
