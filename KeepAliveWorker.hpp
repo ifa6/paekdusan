@@ -25,21 +25,24 @@ namespace Paekdusan {
     public:
         virtual void run() {
             do {
-                if (!setSendTimeout(_sockfd, _timeout)) {
+                if (!setSendTimeout(_sockfd, 1)) {
                     LogError("setSendTimeout failed: %d", getLastErrorNo());
                     break;
                 }
 
-                if (!setRecvTimeout(_sockfd, _timeout)) {
+                if (!setRecvTimeout(_sockfd, 1)) {
                     LogError("setRecvTimeout failed: %d", getLastErrorNo());
                     break;
                 }
-
                 HttpRequest httpRequest;
                 int recvLen, parsedLength, unparsed = 0;
 
                 while ((_startTime == 0 || time(nullptr) - _startTime <= _timeout) && _requestCount > 0) {
                     recvLen = recv(_sockfd, _recvBuff + unparsed, RECV_BUFFER_SIZE - unparsed, 0);
+                    if (recvLen <= 0 && isTimeout()) {
+                        LogError("recv returns %d", recvLen);
+                        continue;
+                    }
                     if (recvLen <= 0) {
                         LogError("recv failed: %d", getLastErrorNo());
                         break;

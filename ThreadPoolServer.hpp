@@ -27,7 +27,7 @@ namespace Paekdusan {
                     break;
                 }
                 LogInfo("accept client: %s", inet_ntoa(clientAddr.sin_addr));
-                _threadPool.add(new Worker(clientSock, _httpRequestHandler));
+                _threadPool.add(new KeepAliveWorker(clientSock, _httpRequestHandler));
             }
             return true;
         }

@@ -24,10 +24,11 @@ namespace Paekdusan {
             
             while (!httpRequest.readBodyFinished()) {
                 recvLen = recv(_sockfd, recvBuff + unparsed, RECV_BUFFER_SIZE - unparsed, 0);
-                if (recvLen <= 0) {
+                if (recvLen < 0 && !isTimeout()) {
                     LogError("recv failed: %d", getLastErrorNo());
                     return false;
                 }
+                if (recvLen == 0) LogInfo("recv returns 0: %d", getLastErrorNo());
 
                 unparsed += recvLen;
                 parsedLength = httpRequest.parse(recvBuff);
