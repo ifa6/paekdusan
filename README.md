@@ -34,4 +34,4 @@ paekdusan是一个跨平台的简易C++服务框架，并且附带了实现了�
 
 更多信息
 
-[paekdusan](http://cstdlib.com/jekyll/update/2015/05/17/http-and-web-server/)
+[paekdusan](http://cstdlib.com/tech/2015/05/17/http-and-web-server/)
